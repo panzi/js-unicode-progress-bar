@@ -88,35 +88,36 @@ function main() {
             lines.push(...centerBox(message, availWidth, 1));
             console.log(centerBox(lines, availWidth, availHeight).join('\n'));
         } else {
+            const barAvailHeight = availHeight - 2;
             const lines = verticalJoin(
-                verticalUnicodeProgressBar(value, availHeight - 2),
+                verticalUnicodeProgressBar(value, barAvailHeight),
                 [' '],
                 verticalUnicodeProgressBar(value, {
-                    height: availHeight - 2,
+                    height: barAvailHeight,
                     label: true,
                     borderStyle: 'regular',
                 }),
                 [' '],
                 verticalUnicodeProgressBar(value, {
-                    height: availHeight - 2,
+                    height: barAvailHeight,
                     label: true,
                     borderStyle: 'rounded',
                 }),
                 [' '],
                 verticalUnicodeProgressBar(value, {
-                    height: availHeight - 2,
+                    height: barAvailHeight,
                     barWidth: 1,
                     borderStyle: 'fat',
                 }),
                 [' '],
                 verticalUnicodeProgressBar(value, {
-                    height: availHeight - 2,
+                    height: barAvailHeight,
                     barWidth: 4,
                     label: true,
                     borderStyle: 'double',
                 }),
             );
-            console.log(centerBox(lines, availWidth, availHeight).join('\n'));
+            console.log(centerBox(lines, availWidth, barAvailHeight).join('\n'));
             console.log(centerBox(message, availWidth, 1).join('\n'));
         }
 

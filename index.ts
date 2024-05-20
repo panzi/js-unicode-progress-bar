@@ -138,7 +138,7 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
         for (let index = 0; index < barHeight; ++ index) {
             bar.push('█');
         }
-    } else {
+    } else if (barHeight > 0) {
         const chars = barHeight * value;
         const full = chars|0;
         const rem = chars - full;
