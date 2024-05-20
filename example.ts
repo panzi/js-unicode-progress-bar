@@ -19,6 +19,30 @@ function centerBox(text: string|string[], width: number, height: number): string
     return box;
 }
 
+function verticalJoin(...blocks: string[][]): string[] {
+    const lines: string[][] = [];
+    let width = 0;
+    for (const block of blocks) {
+        const blockWidth = block.reduce((len, line) => Math.max(len, line.length), 0);
+        let padLine = ' '.repeat(width);
+        while (lines.length < block.length) {
+            lines.push([padLine]);
+        }
+
+        for (let index = 0; index < block.length; ++ index) {
+            lines[index].push(block[index].padEnd(blockWidth));
+        }
+
+        padLine = ' '.repeat(blockWidth);
+        for (let index = block.length; index < lines.length; ++ index) {
+            lines[index].push(padLine);
+        }
+
+        width += blockWidth;
+    }
+    return lines.map(block => block.join(''));
+}
+
 function main() {
     const message = 'Press Control+C to exit.';
 
@@ -32,14 +56,13 @@ function main() {
     const duration = 15_000;
     let horizontal = true;
     const redraw = (now: number) => {
-        const value = (now - start) / duration;
-
         process.stdout.write('\x1B[1;1H\x1B[2J');
 
-        if (horizontal) {
-            const availWidth  = process.stdout.columns ?? 80;
-            const availHeight = process.stdout.rows ?? 40;
+        const availWidth  = process.stdout.columns ?? 80;
+        const availHeight = process.stdout.rows ?? 40;
+        const value = (now - start) / duration;
 
+        if (horizontal) {
             const lines: string[] = [];
             lines.push(...unicodeProgressBar(value, availWidth));
             lines.push(...unicodeProgressBar(value, {
@@ -65,16 +88,36 @@ function main() {
             lines.push(...centerBox(message, availWidth, 1));
             console.log(centerBox(lines, availWidth, availHeight).join('\n'));
         } else {
-            const percent = (Math.min(value, 1.0) * 100).toFixed(0) + '%';
-            const availWidth = Math.max(process.stdout.columns ?? 80, 6);
-            const availHeight = Math.max(process.stdout.rows ?? 40, 6);
-            const barHeight = availHeight - 5;
-
-            const bar = verticalUnicodeProgressBar(value, barHeight).map(char => ` ${char}${char} `);
-            bar.push(percent.length <= 2 ? percent.padStart(percent.length + ((4 - percent.length) >> 1)) : percent.padStart(4));
-            const box = makeBox(bar);
-            console.log(box.map(line => line.padStart(6 + (availWidth - 6) >> 1)).join('\n'));
-            console.log(message.padStart(message.length + ((availWidth - message.length) >> 1)));
+            const lines = verticalJoin(
+                verticalUnicodeProgressBar(value, availHeight - 2),
+                [' '],
+                verticalUnicodeProgressBar(value, {
+                    height: availHeight - 2,
+                    label: true,
+                    borderStyle: 'regular',
+                }),
+                [' '],
+                verticalUnicodeProgressBar(value, {
+                    height: availHeight - 2,
+                    label: true,
+                    borderStyle: 'rounded',
+                }),
+                [' '],
+                verticalUnicodeProgressBar(value, {
+                    height: availHeight - 2,
+                    barWidth: 1,
+                    borderStyle: 'fat',
+                }),
+                [' '],
+                verticalUnicodeProgressBar(value, {
+                    height: availHeight - 2,
+                    barWidth: 4,
+                    label: true,
+                    borderStyle: 'double',
+                }),
+            );
+            console.log(centerBox(lines, availWidth, availHeight).join('\n'));
+            console.log(centerBox(message, availWidth, 1).join('\n'));
         }
 
         if (value >= 1.0) {

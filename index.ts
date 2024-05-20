@@ -1,11 +1,11 @@
-export interface HorizontalOptions {
+export interface ProgressBarOptions {
     width?: number;
     height?: number;
     borderStyle?: BorderStyleName|BorderStyle|null;
     label?: string|true|null;
 }
 
-export function unicodeProgressBar(value: number, widthOrOptions: number|HorizontalOptions = 80): string[] {
+export function unicodeProgressBar(value: number, widthOrOptions: number|ProgressBarOptions = 80): string[] {
     let width: number;
     let barHeight: number = 1;
     let borderStyle: BorderStyle|null = null;
@@ -84,40 +84,88 @@ const HCHAR_MAP = [
     '█', // 1/1 1
 ];
 
-export function verticalUnicodeProgressBar(value: number, height: number = 40): string[] {
-    if (height <= 0) {
-        return [];
-    }
+export interface VerticalProgressBarOptions extends ProgressBarOptions {
+    barWidth?: number;
+}
+
+export function verticalUnicodeProgressBar(value: number, heightOrOptions: number|VerticalProgressBarOptions = 40): string[] {
+    let height: number;
+    let width: number = 2;
+    let barWidth: number = 2;
+    let borderStyle: BorderStyle|null = null;
+    let label: string|true|null = null;
 
     if (value < 0) {
         value = 0;
+    } else if (value > 1) {
+        value = 1;
+    }
+
+    if (typeof heightOrOptions === 'number') {
+        height = heightOrOptions;
+    } else {
+        height = heightOrOptions.height ?? 40;
+        const style = heightOrOptions.borderStyle;
+        borderStyle = typeof style === 'string' ? BorderStyles[style] : style || null;
+        label = heightOrOptions.label ?? null;
+        if (label === true) {
+            label = ((value * 100).toFixed(0) + '%').padStart(4);
+        }
+        const borderWidth = borderStyle ? 2 : 0;
+        if (heightOrOptions.width === undefined) {
+            const labelWidth = label?.length ?? 0;
+            barWidth = heightOrOptions.barWidth ?? 2;
+            width = Math.max(barWidth, labelWidth) + borderWidth;
+        } else {
+            width = heightOrOptions.width;
+            barWidth = heightOrOptions.barWidth ?? width - borderWidth;
+        }
+    }
+
+    let barHeight = height;
+    if (label !== null) {
+        barHeight = height - 1;
+    }
+
+    let innerWidth = width;
+    if (borderStyle) {
+        barHeight -= 2;
+        innerWidth -= 2;
     }
 
     const bar: string[] = [];
-    if (value >= 1.0) {
-        for (let index = 0; index < height; ++ index) {
+    if (value === 1) {
+        for (let index = 0; index < barHeight; ++ index) {
             bar.push('█');
         }
-        return bar;
+    } else {
+        const chars = barHeight * value;
+        const full = chars|0;
+        const rem = chars - full;
+
+        for (let index = Math.ceil(chars); index < barHeight; ++ index) {
+            bar.push(' ');
+        }
+
+        if (rem > 0) {
+            bar.push(VCHAR_MAP[(rem * VCHAR_MAP.length)|0]);
+        }
+
+        for (let index = 0; index < full; ++ index) {
+            bar.push('█');
+        }
     }
 
-    const chars = height * value;
-    const full = chars|0;
-    const rem = chars - full;
-
-    for (let index = Math.ceil(chars); index < height; ++ index) {
-        bar.push(' ');
+    const lines: string[] = [];
+    const prefix = ' '.repeat(Math.ceil((innerWidth - barWidth) / 2));
+    for (const char of bar) {
+        lines.push(prefix + char.repeat(barWidth))
+    }
+    if (label !== null) {
+        lines.push(' '.repeat(Math.ceil((innerWidth - label.length) / 2)) + label);
     }
 
-    if (rem > 0) {
-        bar.push(VCHAR_MAP[(rem * VCHAR_MAP.length)|0]);
-    }
-
-    for (let index = 0; index < full; ++ index) {
-        bar.push('█');
-    }
-
-    return bar;
+    return borderStyle ? makeBox(lines, borderStyle) : lines;
 }
 
 const VCHAR_MAP = [
