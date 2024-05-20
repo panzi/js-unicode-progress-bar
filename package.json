@@ -1,0 +1,16 @@
+{
+  "name": "unicode-progress-bar",
+  "description": "A very simple function to draw a progress bar using unicode.",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "example": "node ./dist/example.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@types/node": "^20.12.12"
+  }
+}
