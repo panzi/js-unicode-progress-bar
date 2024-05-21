@@ -19,10 +19,13 @@ function centerBox(text: string|string[], width: number, height: number): string
     return box;
 }
 
-function verticalJoin(...blocks: string[][]): string[] {
+function verticalJoin(...blocks: (string[]|string)[]): string[] {
     const lines: string[][] = [];
     let width = 0;
-    for (const block of blocks) {
+    for (let block of blocks) {
+        if (typeof block === 'string') {
+            block = block.split('\n');
+        }
         const blockWidth = block.reduce((len, line) => Math.max(len, line.length), 0);
         let padLine = ' '.repeat(width);
         while (lines.length < block.length) {
@@ -73,11 +76,39 @@ function main() {
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
                 label: true,
+                borderStyle: 'dots',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
+                label: true,
+                borderStyle: 'fatdots',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
+                label: true,
+                borderStyle: 'dashed',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
+                label: true,
+                borderStyle: 'fatdashed',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
+                label: true,
                 borderStyle: 'rounded',
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
+                borderStyle: 'pixel',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
                 borderStyle: 'fat',
+            }));
+            lines.push(...unicodeProgressBar(value, {
+                width: availWidth,
+                borderStyle: 'fat+',
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
@@ -88,28 +119,64 @@ function main() {
             lines.push(...centerBox(message, availWidth, 1));
             console.log(centerBox(lines, availWidth, availHeight).join('\n'));
         } else {
-            const barAvailHeight = availHeight - 2;
+            const barAvailHeight = availHeight - 3;
             const lines = verticalJoin(
                 verticalUnicodeProgressBar(value, barAvailHeight),
-                [' '],
+                '  ',
                 verticalUnicodeProgressBar(value, {
                     height: barAvailHeight,
                     label: true,
                     borderStyle: 'regular',
                 }),
-                [' '],
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    label: true,
+                    borderStyle: 'dots',
+                }),
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    label: true,
+                    borderStyle: 'fatdots',
+                }),
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    label: true,
+                    borderStyle: 'dashed',
+                }),
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    label: true,
+                    borderStyle: 'fatdashed',
+                }),
+                '  ',
                 verticalUnicodeProgressBar(value, {
                     height: barAvailHeight,
                     label: true,
                     borderStyle: 'rounded',
                 }),
-                [' '],
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    barWidth: 1,
+                    borderStyle: 'pixel',
+                }),
+                '  ',
                 verticalUnicodeProgressBar(value, {
                     height: barAvailHeight,
                     barWidth: 1,
                     borderStyle: 'fat',
                 }),
-                [' '],
+                '  ',
+                verticalUnicodeProgressBar(value, {
+                    height: barAvailHeight,
+                    barWidth: 1,
+                    borderStyle: 'fat+',
+                }),
+                '  ',
                 verticalUnicodeProgressBar(value, {
                     height: barAvailHeight,
                     barWidth: 4,
@@ -117,6 +184,7 @@ function main() {
                     borderStyle: 'double',
                 }),
             );
+            console.log();
             console.log(centerBox(lines, availWidth, barAvailHeight).join('\n'));
             console.log(centerBox(message, availWidth, 1).join('\n'));
         }

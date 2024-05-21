@@ -179,14 +179,25 @@ const VCHAR_MAP = [
     '█', // 1/1 1
 ];
 
-export type BorderStyle = [topLeft: string, topRight: string, bottomLeft: string, bottomRight: string, horizontal: string, vertical: string];
+export type BorderStyle = [
+    topLeft: string, topRight: string,
+    bottomLeft: string, bottomRight: string,
+    top: string, bottom: string,
+    left: string, right: string,
+];
 
 const BorderStyles = {
-    space:   [' ',' ',' ',' ',' ',' '] as const satisfies BorderStyle,
-    regular: ['┌','┐','└','┘','─','│'] as const satisfies BorderStyle,
-    rounded: ['╭','╮','╰','╯','─','│'] as const satisfies BorderStyle,
-    fat:     ['┏','┓','┗','┛','━','┃'] as const satisfies BorderStyle,
-    double:  ['╔','╗','╚','╝','═','║'] as const satisfies BorderStyle,
+    space:     [' ',' ',' ',' ',' ',' ',' ',' '] as const satisfies BorderStyle,
+    regular:   ['┌','┐','└','┘','─','─','│','│'] as const satisfies BorderStyle,
+    dots:      ['┌','┐','└','┘','┄','┄','┊','┊'] as const satisfies BorderStyle,
+    dashed:    ['┌','┐','└','┘','╌','╌','╎','╎'] as const satisfies BorderStyle,
+    rounded:   ['╭','╮','╰','╯','─','─','│','│'] as const satisfies BorderStyle,
+    fat:       ['┏','┓','┗','┛','━','━','┃','┃'] as const satisfies BorderStyle,
+    fatdots:   ['┏','┓','┗','┛','┅','┅','┇','┇'] as const satisfies BorderStyle,
+    fatdashed: ['┏','┓','┗','┛','╍','╍','╏','╏'] as const satisfies BorderStyle,
+    double:    ['╔','╗','╚','╝','═','═','║','║'] as const satisfies BorderStyle,
+    'fat+':    ['▛','▜','▙','▟','▀','▄','▌','▐'] as const satisfies BorderStyle,
+    pixel:     ['▞','▚','▚','▞','▀','▄','▌','▐'] as const satisfies BorderStyle,
 };
 
 export type BorderStyleName = keyof typeof BorderStyles;
@@ -201,15 +212,14 @@ export function makeBox(text: string|string[], style: BorderStyleName|BorderStyl
         }
     }
 
-    const [topLeft, topRight, bottomLeft, bottomRight, horizontal, vertical] =
+    const [topLeft, topRight, bottomLeft, bottomRight, top, bottom, left, right] =
         typeof style === 'string' ? BorderStyles[style] : style;
-    const outline = horizontal.repeat(maxLen);
     const out: string[] = [];
-    out.push(`${topLeft}${outline}${topRight}`);
+    out.push(`${topLeft}${top.repeat(maxLen)}${topRight}`);
     for (const line of lines) {
-        out.push(`${vertical}${(line ?? '').padEnd(maxLen)}${vertical}`);
+        out.push(`${left}${(line ?? '').padEnd(maxLen)}${right}`);
     }
-    out.push(`${bottomLeft}${outline}${bottomRight}`);
+    out.push(`${bottomLeft}${bottom.repeat(maxLen)}${bottomRight}`);
 
     return out;
 }
