@@ -1,9 +1,9 @@
-import { unicodeProgressBar, verticalUnicodeProgressBar, makeBox } from "./index.js";
+import { unicodeProgressBar, verticalUnicodeProgressBar, getTextWidth } from "./index.js";
 
 function centerBox(text: string|string[], width: number, height: number): string[] {
     const lines = Array.isArray(text) ? text : text.split('\n');
     const box: string[] = [];
-    const maxLen = lines.reduce((len, line) => Math.max(len, line.length), 0);
+    const maxLen = lines.reduce((len, line) => Math.max(len, getTextWidth(line)), 0);
     const padStart = Math.max((width - maxLen) >> 1, 0);
     const prefix = ' '.repeat(padStart);
 
@@ -26,7 +26,7 @@ function verticalJoin(...blocks: (string[]|string)[]): string[] {
         if (typeof block === 'string') {
             block = block.split('\n');
         }
-        const blockWidth = block.reduce((len, line) => Math.max(len, line.length), 0);
+        const blockWidth = block.reduce((len, line) => Math.max(len, getTextWidth(line)), 0);
         let padLine = ' '.repeat(width);
         while (lines.length < block.length) {
             lines.push([padLine]);
@@ -92,6 +92,9 @@ function main() {
                 width: availWidth,
                 label: true,
                 borderStyle: 'fatdashed',
+                borderColor: 'blue',
+                labelColor: 'blue',
+                barColors: [[0, 'green'], [0.5, 'yellow'], [0.8, 'red']],
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
@@ -109,12 +112,14 @@ function main() {
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
                 borderStyle: 'fat+',
+                barColors: [[0, 'bright_magenta'], [1/6, 'bright_red'], [2/6, 'bright_yellow'], [3/6, 'bright_green'], [4/6, 'bright_cyan'], [5/6, 'bright_blue']],
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
                 label: true,
                 borderStyle: 'double',
                 height: 5,
+                barColors: [[0, 'magenta'], [1/6, 'red'], [2/6, 'yellow'], [3/6, 'green'], [4/6, 'cyan'], [5/6, 'blue']],
             }));
             lines.push(...centerBox(message, availWidth, 1));
             console.log(centerBox(lines, availWidth, availHeight).join('\n'));
@@ -151,6 +156,9 @@ function main() {
                     height: barAvailHeight,
                     label: true,
                     borderStyle: 'fatdashed',
+                    borderColor: 'blue',
+                    labelColor: 'blue',
+                    barColors: [[0, 'green'], [0.5, 'yellow'], [0.8, 'red']],
                 }),
                 '  ',
                 verticalUnicodeProgressBar(value, {
@@ -175,6 +183,7 @@ function main() {
                     height: barAvailHeight,
                     barWidth: 1,
                     borderStyle: 'fat+',
+                    barColors: [[0, 'bright_magenta'], [1/6, 'bright_red'], [2/6, 'bright_yellow'], [3/6, 'bright_green'], [4/6, 'bright_cyan'], [5/6, 'bright_blue']],
                 }),
                 '  ',
                 verticalUnicodeProgressBar(value, {
@@ -182,6 +191,7 @@ function main() {
                     barWidth: 4,
                     label: true,
                     borderStyle: 'double',
+                    barColors: [[0, 'magenta'], [1/6, 'red'], [2/6, 'yellow'], [3/6, 'green'], [4/6, 'cyan'], [5/6, 'blue']],
                 }),
             );
             console.log();
