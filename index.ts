@@ -6,6 +6,7 @@ export interface ProgressBarOptions {
     borderStyle?: BorderStyleName|BorderStyle|null;
     label?: string|true|null;
     borderColor?: Color|null;
+    backgroundColor?: Color|null;
     labelColor?: Color|null;
     barColors?: ReadonlyArray<ColorSegment>;
 }
@@ -17,6 +18,7 @@ export function unicodeProgressBar(value: number, widthOrOptions: number|Progres
     let label: string|true|null = null;
     let borderColor: Color|null = null;
     let labelColor: Color|null = null;
+    let backgroundColor: Color|null = null;
     let barColors: ReadonlyArray<ColorSegment>|undefined;
 
     if (typeof widthOrOptions === 'number') {
@@ -31,6 +33,7 @@ export function unicodeProgressBar(value: number, widthOrOptions: number|Progres
         borderColor = widthOrOptions.borderColor ?? null;
         barColors = widthOrOptions.barColors;
         labelColor = widthOrOptions.labelColor ?? null;
+        backgroundColor = widthOrOptions.backgroundColor ?? null;
     }
 
     if (value < 0) {
@@ -42,6 +45,8 @@ export function unicodeProgressBar(value: number, widthOrOptions: number|Progres
     let barWidth = width;
     if (label === true) {
         label = ((value * 100).toFixed(0) + '%').padStart(4);
+    } else if (label && backgroundColor) {
+        label += COLOR_MAP[backgroundColor][1];
     }
 
     if (label !== null) {
@@ -89,7 +94,7 @@ export function unicodeProgressBar(value: number, widthOrOptions: number|Progres
         bar = chunks.join('');
     }
 
-    const lines: string[] = [];
+    let lines: string[] = [];
 
     for (let y = 0; y < barHeight; ++ y) {
         lines.push(bar);
@@ -99,7 +104,19 @@ export function unicodeProgressBar(value: number, widthOrOptions: number|Progres
         lines[lines.length >> 1] = `${bar} ${label}`;
     }
 
-    return borderStyle ? makeBox(lines, borderStyle, borderColor) : lines;
+    if (borderStyle) {
+        lines = makeBox(lines, borderStyle, borderColor);
+    }
+
+    if (backgroundColor) {
+        const endbg = COLOR_MAP.default[1];
+        const bg = COLOR_MAP[backgroundColor][1];
+        for (let index = 0; index < lines.length; ++ index) {
+            lines[index] = `${bg}${lines[index]}${endbg}`;
+        }
+    }
+
+    return lines;
 }
 
 const HCHAR_MAP = [
@@ -126,6 +143,7 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
     let labelWidth = 0;
     let borderColor: Color|null = null;
     let labelColor: Color|null = null;
+    let backgroundColor: Color|null = null;
     let barColors: ReadonlyArray<ColorSegment>|undefined;
 
     if (value < 0) {
@@ -158,6 +176,7 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
         borderColor = heightOrOptions.borderColor ?? null;
         barColors = heightOrOptions.barColors;
         labelColor = heightOrOptions.labelColor ?? null;
+        backgroundColor = heightOrOptions.backgroundColor ?? null;
     }
 
     let barHeight = height;
@@ -165,6 +184,9 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
         barHeight = height - 1;
         if (labelColor) {
             label = `${COLOR_MAP[labelColor][0]}${label}${COLOR_MAP.default[0]}`;
+        }
+        if (backgroundColor) {
+            label += COLOR_MAP[backgroundColor][1];
         }
     }
 
@@ -225,7 +247,7 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
         }
     }
 
-    const lines: string[] = [];
+    let lines: string[] = [];
     const prefix = ' '.repeat(Math.ceil((innerWidth - barWidth) / 2));
     for (const char of bar) {
         lines.push(prefix + char.repeat(barWidth))
@@ -234,7 +256,19 @@ export function verticalUnicodeProgressBar(value: number, heightOrOptions: numbe
         lines.push(' '.repeat(Math.ceil((innerWidth - labelWidth) / 2)) + label);
     }
 
-    return borderStyle ? makeBox(lines, borderStyle, borderColor) : lines;
+    if (borderStyle) {
+        lines = makeBox(lines, borderStyle, borderColor);
+    }
+
+    if (backgroundColor) {
+        const endbg = COLOR_MAP.default[1];
+        const bg = COLOR_MAP[backgroundColor][1];
+        for (let index = 0; index < lines.length; ++ index) {
+            lines[index] = `${bg}${lines[index]}${endbg}`;
+        }
+    }
+
+    return lines;
 }
 
 const VCHAR_MAP = [

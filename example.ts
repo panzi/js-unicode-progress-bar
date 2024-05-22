@@ -46,6 +46,8 @@ function verticalJoin(...blocks: (string[]|string)[]): string[] {
     return lines.map(block => block.join(''));
 }
 
+const CLEAR = '\x1B[1;1H\x1B[2J';
+
 function main() {
     const message = 'Press Control+C to exit.';
 
@@ -59,8 +61,6 @@ function main() {
     const duration = 15_000;
     let horizontal = true;
     const redraw = (now: number) => {
-        process.stdout.write('\x1B[1;1H\x1B[2J');
-
         const availWidth  = process.stdout.columns ?? 80;
         const availHeight = process.stdout.rows ?? 40;
         const value = (now - start) / duration;
@@ -82,6 +82,7 @@ function main() {
                 width: availWidth,
                 label: true,
                 borderStyle: 'fatdots',
+                backgroundColor: 'blue',
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
@@ -113,6 +114,8 @@ function main() {
                 width: availWidth,
                 borderStyle: 'fat+',
                 barColors: [[0, 'bright_magenta'], [1/6, 'bright_red'], [2/6, 'bright_yellow'], [3/6, 'bright_green'], [4/6, 'bright_cyan'], [5/6, 'bright_blue']],
+                backgroundColor: 'white',
+                borderColor: 'black',
             }));
             lines.push(...unicodeProgressBar(value, {
                 width: availWidth,
@@ -122,6 +125,7 @@ function main() {
                 barColors: [[0, 'magenta'], [1/6, 'red'], [2/6, 'yellow'], [3/6, 'green'], [4/6, 'cyan'], [5/6, 'blue']],
             }));
             lines.push(...centerBox(message, availWidth, 1));
+            process.stdout.write(CLEAR);
             console.log(centerBox(lines, availWidth, availHeight).join('\n'));
         } else {
             const barAvailHeight = availHeight - 3;
@@ -144,6 +148,7 @@ function main() {
                     height: barAvailHeight,
                     label: true,
                     borderStyle: 'fatdots',
+                    backgroundColor: 'blue',
                 }),
                 '  ',
                 verticalUnicodeProgressBar(value, {
@@ -184,6 +189,8 @@ function main() {
                     barWidth: 1,
                     borderStyle: 'fat+',
                     barColors: [[0, 'bright_magenta'], [1/6, 'bright_red'], [2/6, 'bright_yellow'], [3/6, 'bright_green'], [4/6, 'bright_cyan'], [5/6, 'bright_blue']],
+                    backgroundColor: 'white',
+                    borderColor: 'black',
                 }),
                 '  ',
                 verticalUnicodeProgressBar(value, {
@@ -194,6 +201,7 @@ function main() {
                     barColors: [[0, 'magenta'], [1/6, 'red'], [2/6, 'yellow'], [3/6, 'green'], [4/6, 'cyan'], [5/6, 'blue']],
                 }),
             );
+            process.stdout.write(CLEAR);
             console.log();
             console.log(centerBox(lines, availWidth, barAvailHeight).join('\n'));
             console.log(centerBox(message, availWidth, 1).join('\n'));
